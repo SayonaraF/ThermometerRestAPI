@@ -25,4 +25,8 @@ public class MeasurementService {
     public void save(Measurement measurement) {
         measurementRepository.save(measurement);
     }
+
+    public long getRainyDaysCount() {
+        return measurementRepository.countAllByRainingIsTrue();
+    }
 }
