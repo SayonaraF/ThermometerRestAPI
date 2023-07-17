@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sensors_measurements", schema = "sensor_data")
@@ -32,4 +33,7 @@ public class Measurement {
     @ManyToOne
     @JoinColumn(name = "sensor_id", referencedColumnName = "id")
     private Sensor sensor;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

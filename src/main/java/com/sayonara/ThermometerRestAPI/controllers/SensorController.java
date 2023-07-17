@@ -1,5 +1,6 @@
 package com.sayonara.ThermometerRestAPI.controllers;
 
+import com.sayonara.ThermometerRestAPI.dto.SensorDTO;
 import com.sayonara.ThermometerRestAPI.models.Sensor;
 import com.sayonara.ThermometerRestAPI.services.SensorService;
 import com.sayonara.ThermometerRestAPI.util.ErrorResponse;
@@ -22,16 +23,18 @@ public class SensorController {
 
     private final SensorService sensorService;
     private final SensorValidator sensorValidator;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public SensorController(SensorService sensorService, SensorValidator sensorValidator) {
+    public SensorController(SensorService sensorService, SensorValidator sensorValidator, ModelMapper modelMapper) {
         this.sensorService = sensorService;
         this.sensorValidator = sensorValidator;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<HttpStatus> register(@RequestBody @Valid Sensor sensor, BindingResult bindingResult) {
-        sensorValidator.validate(sensor, bindingResult);
+    public ResponseEntity<HttpStatus> register(@RequestBody @Valid SensorDTO sensor, BindingResult bindingResult) {
+        sensorValidator.validate(convertToSensor(sensor), bindingResult);
         if (bindingResult.hasErrors()) {
             StringBuilder stringBuilder = new StringBuilder();
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -43,7 +46,7 @@ public class SensorController {
             throw new SensorNotCreatedException(stringBuilder.toString());
         }
 
-        sensorService.save(sensor);
+        sensorService.save(convertToSensor(sensor));
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
@@ -53,5 +56,9 @@ public class SensorController {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), System.currentTimeMillis());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    private Sensor convertToSensor(SensorDTO sensorDTO) {
+        return modelMapper.map(sensorDTO, Sensor.class);
     }
 }
